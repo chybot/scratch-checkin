@@ -1,6 +1,7 @@
 "use client";
 
 import { stages } from "../data/curriculum";
+import ProgressRing from "./ProgressRing";
 
 interface ProgressBarProps {
   completedLessons: Set<number>;
@@ -11,46 +12,39 @@ export default function ProgressBar({ completedLessons }: ProgressBarProps) {
   const done = completedLessons.size;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-  // Calculate stage boundaries for milestone markers
-  let cumulative = 0;
-  const milestones = stages.map((s) => {
-    cumulative += s.lessons.length;
-    return { name: s.name, emoji: s.emoji, pct: Math.round((cumulative / total) * 100) };
-  });
-
   return (
-    <div className="rounded-2xl bg-white border border-slate-100 p-5 shadow-sm">
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-sm font-semibold text-slate-700">总进度</h3>
-        <span className="text-lg font-bold text-violet-600 font-[family-name:var(--font-geist-mono)] tabular-nums">
-          {pct}%
-        </span>
-      </div>
-
-      {/* Main bar */}
-      <div className="relative mt-2">
-        <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 transition-all duration-700 ease-out"
-            style={{
-              width: `${pct}%`,
-              boxShadow: pct > 0 ? "0 0 12px rgba(139,92,246,0.4)" : "none",
-            }}
-          />
-        </div>
-
-        {/* Milestone markers */}
-        <div className="relative h-6 mt-1">
-          {milestones.map((m, i) => (
-            <div
-              key={i}
-              className="absolute -translate-x-1/2 flex flex-col items-center"
-              style={{ left: `${m.pct}%` }}
-            >
-              <div className="w-px h-2 bg-slate-200" />
-              <span className="text-[10px] text-slate-400 whitespace-nowrap">{m.emoji}</span>
-            </div>
-          ))}
+    <div className="rounded-3xl bg-white ring-1 ring-gray-100 p-6 shadow-sm flex items-center gap-6">
+      <ProgressRing pct={pct} size={90} stroke={10} />
+      <div className="flex-1">
+        <h3 className="text-base font-extrabold text-gray-800">学习进度</h3>
+        <p className="text-sm text-gray-400 mt-0.5">
+          已完成 <span className="font-bold text-gray-600">{done}</span> / {total} 课
+        </p>
+        {/* Stage dots */}
+        <div className="flex gap-1.5 mt-3">
+          {stages.map((stage) => {
+            const stageDone = stage.lessons.filter((l) => completedLessons.has(l.id)).length;
+            const stageTotal = stage.lessons.length;
+            const allDone = stageDone === stageTotal;
+            const started = stageDone > 0;
+            return (
+              <div key={stage.id} className="flex flex-col items-center gap-1" title={`${stage.name} ${stageDone}/${stageTotal}`}>
+                <div className="flex gap-0.5">
+                  {stage.lessons.map((l) => (
+                    <div
+                      key={l.id}
+                      className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+                        completedLessons.has(l.id) ? "bg-[#58CC02]" : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-[10px]">
+                  {allDone ? "✅" : started ? stage.emoji : "🔒"}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
