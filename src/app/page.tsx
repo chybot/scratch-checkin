@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Cat } from "lucide-react";
 import { stages } from "./data/curriculum";
+import StatsCards from "./components/StatsCards";
 import ProgressBar from "./components/ProgressBar";
+import Heatmap from "./components/Heatmap";
 import StageSection from "./components/StageSection";
 
 interface CheckinData {
@@ -64,24 +67,42 @@ export default function Home() {
   if (!loaded) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-pulse text-gray-400">加载中...</div>
+        <div className="animate-pulse text-slate-300 text-sm">加载中...</div>
       </div>
     );
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 pb-20">
-      <header className="text-center mb-8">
-        <h1 className="text-3xl font-black text-gray-800">
-          🐱 Scratch 学习打卡
-        </h1>
-        <p className="mt-2 text-gray-500">
-          二年级 · 36课时 · 每周一练
-        </p>
+    <div className="mx-auto max-w-5xl px-4 py-8 pb-20">
+      {/* Header */}
+      <header className="flex items-center gap-3 mb-8">
+        <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
+          <Cat className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            Scratch 学习打卡
+          </h1>
+          <p className="text-sm text-slate-400">
+            二年级 · 36课时 · 每周一练
+          </p>
+        </div>
       </header>
 
-      <ProgressBar completedLessons={completedSet} />
+      {/* Stats row */}
+      <StatsCards completedSet={completedSet} checkins={checkins} />
 
+      {/* Progress + Heatmap row */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-3">
+          <ProgressBar completedLessons={completedSet} />
+        </div>
+        <div className="lg:col-span-2">
+          <Heatmap checkins={checkins} />
+        </div>
+      </div>
+
+      {/* Stages */}
       {stages.map((stage) => (
         <StageSection
           key={stage.id}
@@ -92,9 +113,10 @@ export default function Home() {
         />
       ))}
 
-      <footer className="mt-12 text-center text-sm text-gray-400">
-        数据存储在浏览器本地，换设备请导出备份
+      {/* Footer */}
+      <footer className="mt-16 text-center text-xs text-slate-300">
+        数据存储在浏览器本地
       </footer>
-    </main>
+    </div>
   );
 }

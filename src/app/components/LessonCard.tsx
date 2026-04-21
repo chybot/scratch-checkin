@@ -1,6 +1,8 @@
 "use client";
 
+import { Check, MessageSquare } from "lucide-react";
 import { Lesson, Stage } from "../data/curriculum";
+import { useState } from "react";
 
 interface LessonCardProps {
   lesson: Lesson;
@@ -21,75 +23,80 @@ export default function LessonCard({
   onToggle,
   onNoteChange,
 }: LessonCardProps) {
+  const [showNote, setShowNote] = useState(false);
+
   return (
     <div
-      className={`relative rounded-2xl border-2 p-4 transition-all duration-300 ${
+      className={`group relative rounded-2xl border p-4 transition-all duration-300 ${
         completed
-          ? "border-green-300 bg-green-50 shadow-sm"
-          : `${stage.borderColor} ${stage.bgColor} shadow-sm hover:shadow-md`
+          ? "border-emerald-200 bg-emerald-50/80 glow-green"
+          : "border-slate-150 bg-white hover:border-slate-200 hover:shadow-md"
       }`}
     >
-      {/* Lesson number badge */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span
-            className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${
-              completed ? "bg-green-500" : "bg-gray-400"
-            }`}
-          >
-            {lesson.id}
-          </span>
-          <div>
-            <h3 className="font-bold text-gray-800 leading-tight">
-              {lesson.title}
-            </h3>
-            <p className="text-xs text-gray-500 mt-0.5">{lesson.topic}</p>
-          </div>
-        </div>
+      <div className="flex items-start gap-3">
+        {/* Check button */}
         <button
           onClick={onToggle}
-          className={`shrink-0 rounded-full p-1.5 transition-all ${
+          className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200 ${
             completed
-              ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-white border-2 border-gray-300 text-gray-300 hover:border-green-400 hover:text-green-400"
+              ? "bg-emerald-500 text-white shadow-sm"
+              : "border-2 border-slate-200 text-transparent hover:border-violet-400 hover:text-violet-400 active:scale-90"
           }`}
-          title={completed ? "取消打卡" : "打卡完成"}
         >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4.5 12.75l6 6 9-13.5"
-            />
-          </svg>
+          <Check className="h-4 w-4" strokeWidth={3} />
+        </button>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${stage.bgColor} ${stage.color}`}>
+              {lesson.id}
+            </span>
+            <h3
+              className={`font-semibold text-sm leading-tight truncate ${
+                completed ? "text-slate-500 line-through" : "text-slate-800"
+              }`}
+            >
+              {lesson.title}
+            </h3>
+          </div>
+          <p className="mt-1 text-xs text-slate-400 leading-relaxed">{lesson.topic}</p>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="inline-block rounded-md bg-slate-50 px-2 py-0.5 text-[11px] text-slate-500 border border-slate-100">
+              {lesson.project}
+            </span>
+          </div>
+        </div>
+
+        {/* Note toggle */}
+        <button
+          onClick={() => setShowNote(!showNote)}
+          className={`shrink-0 rounded-lg p-1.5 transition-colors ${
+            note
+              ? "text-violet-500 bg-violet-50"
+              : "text-slate-300 hover:text-slate-400 hover:bg-slate-50"
+          }`}
+        >
+          <MessageSquare className="h-3.5 w-3.5" />
         </button>
       </div>
 
-      {/* Project tag */}
-      <div className="mt-2">
-        <span className="inline-block rounded-full bg-white/70 px-2.5 py-0.5 text-xs text-gray-600 border border-gray-200">
-          {lesson.project}
-        </span>
-      </div>
-
-      {/* Note input */}
-      <input
-        type="text"
-        placeholder="记录学习笔记..."
-        value={note || ""}
-        onChange={(e) => onNoteChange(e.target.value)}
-        className="mt-2 w-full rounded-lg border border-gray-200 bg-white/60 px-3 py-1.5 text-xs text-gray-600 placeholder-gray-400 focus:border-blue-300 focus:outline-none"
-      />
+      {/* Note input (expandable) */}
+      {showNote && (
+        <div className="mt-3 pt-3 border-t border-slate-100">
+          <input
+            type="text"
+            placeholder="记录学习心得..."
+            value={note || ""}
+            onChange={(e) => onNoteChange(e.target.value)}
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 placeholder-slate-300 focus:border-violet-300 focus:bg-white focus:outline-none focus:ring-1 focus:ring-violet-200 transition-all"
+          />
+        </div>
+      )}
 
       {/* Completed date */}
       {completed && completedDate && (
-        <p className="mt-1.5 text-xs text-green-600 font-medium">
+        <p className="mt-2 text-[11px] text-emerald-500 font-medium ml-10">
           {completedDate} 完成
         </p>
       )}
